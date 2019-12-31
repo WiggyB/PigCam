@@ -1,0 +1,9 @@
+<html>
+<head>
+<title>Pig Cam</title>
+</head>
+<body>
+<center><h1>Pig Cam</h1></center>
+<center><img src="stream.mjpg" width="640" height="480"></center>
+</body>
+</html>
