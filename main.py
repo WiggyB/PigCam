@@ -13,14 +13,48 @@ from threading import Condition
 from http import server
 
 
-class StreamingOutput(object):
+class daytime_camera(object):
     def __init__(self):
+        self.frame_rate = 24
+        self.camera = picamera.PiCamera(resolution='640x480', framerate=self.frame_rate)
+        output = StreamingOutput(interval=frame_rate*600)
+        # Uncomment the next line to change your Pi's Camera rotation (in degrees)
+        camera.rotation = 180
+        camera.start_recording(output, format='mjpeg')
+
+class lowlight_camera(object):
+    def __init__(self):
+        self.frame_rate = 1
+        self.camera = picamera.PiCamera(resolution='640x480', framerate=self.frame_rate)
+        self.camera.shutter_speed = 1000000
+        self.camera.iso = 800
+        self.output = StreamingOutput(interval=frame_rate*600)
+        self.camera.rotation = 180
+        self.camera.start_recording(output, format='mjpeg')
+
+class nolight_camera(object):
+    def __init__(self):
+        self.frame_rate = Fraction(1,6)
+        self.camera = picamera.PiCamera(resolution='640x480', framerate=self.frame_rate)
+        self.output = StreamingOutput(interval=frame_rate*600)
+        self.camera.rotation = 180
+        self.camera.shutter_speed = 6000000
+        self.camera.iso = 800
+        camera.start_recording(output, format='mjpeg')
+
+class StreamingOutput(object, interval):
+    def __init__(self):
+        self.interval = interval
         self.frame = None
         self.buffer = io.BytesIO()
         self.condition = Condition()
+        self.number = 0
 
     def write(self, buf):
-        print("for the love of god!")
+        self.number +=1
+        # if number == interval:
+            # check_brightness()
+
         if buf.startswith(b'\xff\xd8'):
             # New frame, copy the existing buffer's content and notify all
             # clients it's available
@@ -113,15 +147,7 @@ if __name__ == "__main__":
     index = open("index.html", "r")
     PAGE = index.read()
 
-    camera = picamera.PiCamera(resolution='640x480', framerate=24)
-    output = StreamingOutput()
-    #Uncomment the next line to change your Pi's Camera rotation (in degrees)
-    camera.rotation = 180
-    camera.start_recording(output, format='mjpeg')
-    #try:
-    #    address = ('', 8000)
-    #    server = StreamingServer(address, StreamingHandler)
-    #    server.serve_forever()
+    camera = daytime_camera()
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--cgi", action="store_true", help="Run as CGI Server")
