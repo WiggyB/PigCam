@@ -22,6 +22,10 @@ class daytime_camera(object):
         output.set_interval(self.frame_rate*600)
         self.camera.start_recording(output, format='mjpeg')
 
+    def close(self):
+        self.camera.close()
+
+
 class lowlight_camera(object):
     def __init__(self, output):
         self.frame_rate = 1
@@ -32,6 +36,9 @@ class lowlight_camera(object):
         output.set_interval(self.frame_rate*600)
         self.camera.start_recording(output, format='mjpeg')
 
+    def close(self):
+        self.camera.close()
+
 class nolight_camera(object):
     def __init__(self, output):
         self.frame_rate = Fraction(1,6)
@@ -41,6 +48,9 @@ class nolight_camera(object):
         self.camera.iso = 800
         output.set_interval(self.frame_rate*600)
         self.camera.start_recording(output, format='mjpeg')
+
+    def close(self):
+        self.camera.close()
 
 class StreamingOutput(object):
     def __init__(self):
@@ -55,9 +65,10 @@ class StreamingOutput(object):
     
     def write(self, buf):
         self.number +=1
-        # if number == interval:
-            # check_brightness()
-
+        if self.number == self.interval:
+            camera.close()
+            camera = nolight_camera()
+        print(type(buf))
         if buf.startswith(b'\xff\xd8'):
             # New frame, copy the existing buffer's content and notify all
             # clients it's available
