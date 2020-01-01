@@ -20,6 +20,7 @@ class StreamingOutput(object):
         self.condition = Condition()
 
     def write(self, buf):
+        print("for the love of god!")
         if buf.startswith(b'\xff\xd8'):
             # New frame, copy the existing buffer's content and notify all
             # clients it's available
