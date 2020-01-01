@@ -11,45 +11,48 @@ import logging
 import socketserver
 from threading import Condition
 from http import server
+from fractions import Fraction
 
 
 class daytime_camera(object):
-    def __init__(self):
+    def __init__(self, output):
         self.frame_rate = 24
         self.camera = picamera.PiCamera(resolution='640x480', framerate=self.frame_rate)
-        output = StreamingOutput(interval=frame_rate*600)
-        # Uncomment the next line to change your Pi's Camera rotation (in degrees)
-        camera.rotation = 180
-        camera.start_recording(output, format='mjpeg')
+        self.camera.rotation = 180
+        output.set_interval(self.frame_rate*600)
+        self.camera.start_recording(output, format='mjpeg')
 
 class lowlight_camera(object):
-    def __init__(self):
+    def __init__(self, output):
         self.frame_rate = 1
         self.camera = picamera.PiCamera(resolution='640x480', framerate=self.frame_rate)
         self.camera.shutter_speed = 1000000
         self.camera.iso = 800
-        self.output = StreamingOutput(interval=frame_rate*600)
         self.camera.rotation = 180
+        output.set_interval(self.frame_rate*600)
         self.camera.start_recording(output, format='mjpeg')
 
 class nolight_camera(object):
-    def __init__(self):
+    def __init__(self, output):
         self.frame_rate = Fraction(1,6)
         self.camera = picamera.PiCamera(resolution='640x480', framerate=self.frame_rate)
-        self.output = StreamingOutput(interval=frame_rate*600)
         self.camera.rotation = 180
         self.camera.shutter_speed = 6000000
         self.camera.iso = 800
-        camera.start_recording(output, format='mjpeg')
+        output.set_interval(self.frame_rate*600)
+        self.camera.start_recording(output, format='mjpeg')
 
-class StreamingOutput(object, interval):
+class StreamingOutput(object):
     def __init__(self):
-        self.interval = interval
+        self.interval = 0
         self.frame = None
         self.buffer = io.BytesIO()
         self.condition = Condition()
         self.number = 0
 
+    def set_interval(self, interval):
+        self.interval = interval
+    
     def write(self, buf):
         self.number +=1
         # if number == interval:
@@ -146,8 +149,8 @@ if __name__ == "__main__":
 
     index = open("index.html", "r")
     PAGE = index.read()
-
-    camera = daytime_camera()
+    output = StreamingOutput()
+    camera = daytime_camera(output)
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--cgi", action="store_true", help="Run as CGI Server")
